@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import fragment from './shaders/fragment.glsl';
 import vertex from './shaders/vertex.glsl';
+import testTexture from 'url:../water.jpg';
+import { DoubleSide } from 'three';
 
 export default class Sketch {
   constructor(options) {
@@ -46,14 +48,16 @@ export default class Sketch {
 
   addObjects() {
     // this.geometry = new THREE.BoxGeometry(1, 1, 0.2, 75, 75, 20);
-    // this.geometry = new THREE.CylinderBufferGeometry(0.2, 0.2, 0.5, 12);
+    // this.geometry = new THREE.CylinderBufferGeometry(0.2, 0.2, 0.5, 40, 20);
     this.geometry = new THREE.PlaneBufferGeometry(0.5, 0.5, 30, 30);
 
     // this.material = new THREE.MeshNormalMaterial();
     this.material = new THREE.ShaderMaterial({
-      wireframe: true,
+      // wireframe: true,
+      side: DoubleSide,
       uniforms: {
         time: { value: 1.0 },
+        uTexture: { value: new THREE.TextureLoader().load(testTexture) },
       },
       vertexShader: vertex,
       fragmentShader: fragment,
