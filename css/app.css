@@ -1,0 +1,11 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+#container {
+  height: 100vh;
+  width: 100vw;
+  background-color: rgb(29, 29, 39);
+  color: #ffffff;
+}
