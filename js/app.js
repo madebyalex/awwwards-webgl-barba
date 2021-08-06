@@ -2,8 +2,8 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import fragment from './shaders/fragment.glsl';
 import vertex from './shaders/vertex.glsl';
-import testTexture from 'url:../water.jpg';
-import { DoubleSide } from 'three';
+import testTexture from 'url:../texture.jpg';
+import * as dat from 'dat.gui';
 
 export default class Sketch {
   constructor(options) {
@@ -33,10 +33,20 @@ export default class Sketch {
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
     this.time = 0;
+    this.setupSettings();
     this.resize();
     this.addObjects();
     this.render();
     this.setupResize();
+  }
+
+  setupSettings() {
+    this.settings = {
+      progress: 0,
+    };
+
+    this.gui = new dat.GUI();
+    this.gui.add(this.settings, 'progress', 0, 1, 0.001);
   }
 
   resize() {
@@ -54,15 +64,16 @@ export default class Sketch {
   addObjects() {
     // this.geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5, 75, 75, 20);
     // this.geometry = new THREE.CylinderBufferGeometry(0.2, 0.2, 0.5, 40, 20);
-    this.geometry = new THREE.PlaneBufferGeometry(450, 250);
+    this.geometry = new THREE.PlaneBufferGeometry(250, 250);
     // this.geometry = new THREE.SphereBufferGeometry(0.3, 120, 120);
 
     // this.material = new THREE.MeshNormalMaterial();
     this.material = new THREE.ShaderMaterial({
       // wireframe: true,
-      side: DoubleSide,
       uniforms: {
         time: { value: 1.0 },
+        uProgress: { value: this.settings.progress },
+        uTexture: { value: new THREE.TextureLoader().load(testTexture) },
       },
       vertexShader: vertex,
       fragmentShader: fragment,
@@ -73,6 +84,10 @@ export default class Sketch {
   }
 
   render() {
+    this.time += 0.05;
+    this.material.uniforms.time.value = this.time;
+    this.material.uniforms.uProgress.value = this.settings.progress;
+
     this.mesh.rotation.x = this.time / 2000;
     this.mesh.rotation.y = this.time / 1000;
 
