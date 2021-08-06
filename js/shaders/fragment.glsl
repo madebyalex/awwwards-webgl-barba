@@ -13,5 +13,5 @@ void main() {
   vec4 myImage = texture(uTexture, vUv + 0.01 * sin(vUv * 20. + time));
   // gl_FragColor = myImage;
   // gl_FragColor = vec4(vNormal.x, 0., pulse, 1.);
-  gl_FragColor = vec4(0.5 * (pulse + 1.), 0., 0., 1.);
+  gl_FragColor = vec4(1., 0.5 * (pulse + 1.), 0., 1.);
 }
