@@ -15,9 +15,14 @@ export default class Sketch {
       70,
       this.width / this.height,
       0.01,
-      10
+      1000
     );
-    this.camera.position.z = 1;
+
+    const cameraDistance = 600;
+
+    this.camera.position.z = cameraDistance;
+    this.camera.fov =
+      Math.atan(this.height / 2 / cameraDistance) * (180 / Math.PI) * 2;
 
     this.scene = new THREE.Scene();
 
@@ -49,8 +54,8 @@ export default class Sketch {
   addObjects() {
     // this.geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5, 75, 75, 20);
     // this.geometry = new THREE.CylinderBufferGeometry(0.2, 0.2, 0.5, 40, 20);
-    // this.geometry = new THREE.PlaneBufferGeometry(0.5, 0.5, 30, 30);
-    this.geometry = new THREE.SphereBufferGeometry(0.3, 120, 120);
+    this.geometry = new THREE.PlaneBufferGeometry(450, 250);
+    // this.geometry = new THREE.SphereBufferGeometry(0.3, 120, 120);
 
     // this.material = new THREE.MeshNormalMaterial();
     this.material = new THREE.ShaderMaterial({
@@ -58,7 +63,6 @@ export default class Sketch {
       side: DoubleSide,
       uniforms: {
         time: { value: 1.0 },
-        uTexture: { value: new THREE.TextureLoader().load(testTexture) },
       },
       vertexShader: vertex,
       fragmentShader: fragment,
@@ -69,8 +73,6 @@ export default class Sketch {
   }
 
   render() {
-    this.time += 0.05;
-    this.material.uniforms.time.value = this.time;
     this.mesh.rotation.x = this.time / 2000;
     this.mesh.rotation.y = this.time / 1000;
 
