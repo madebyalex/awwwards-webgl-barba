@@ -50,7 +50,7 @@ export default class Sketch {
     // this.geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5, 75, 75, 20);
     // this.geometry = new THREE.CylinderBufferGeometry(0.2, 0.2, 0.5, 40, 20);
     // this.geometry = new THREE.PlaneBufferGeometry(0.5, 0.5, 30, 30);
-    this.geometry = new THREE.SphereBufferGeometry(0.3, 48, 48);
+    this.geometry = new THREE.SphereBufferGeometry(0.3, 80, 80);
 
     // this.material = new THREE.MeshNormalMaterial();
     this.material = new THREE.ShaderMaterial({
