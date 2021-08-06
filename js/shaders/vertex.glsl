@@ -105,10 +105,12 @@ void main() {
   // newPosition.z = 0.05 * sin(length(position) * 30. + time);
   // pulse = newPosition.z * 20.;
 
-  newPosition = newPosition + 0.1 * normal * snoise(vec4(normal * 10., time * 0.5));
+  float noise = snoise(vec4(normal * 10., time * 0.1));
+  newPosition = newPosition + 0.1 * normal * noise;
 
   gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
 
+  pulse = noise;
   vUv = uv;
   vNormal = normal;
 }
