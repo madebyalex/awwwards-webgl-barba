@@ -4,6 +4,7 @@ import fragment from './shaders/fragment.glsl';
 import vertex from './shaders/vertex.glsl';
 import testTexture from 'url:../texture.jpg';
 import * as dat from 'dat.gui';
+import { DoubleSide } from 'three';
 
 export default class Sketch {
   constructor(options) {
@@ -70,10 +71,13 @@ export default class Sketch {
     // this.material = new THREE.MeshNormalMaterial();
     this.material = new THREE.ShaderMaterial({
       // wireframe: true,
+      side: DoubleSide,
       uniforms: {
         time: { value: 1.0 },
         uProgress: { value: this.settings.progress },
         uTexture: { value: new THREE.TextureLoader().load(testTexture) },
+        uResolution: { value: new THREE.Vector2(this.width, this.height) },
+        uQuadSize: { value: new THREE.Vector2(300, 300) },
       },
       vertexShader: vertex,
       fragmentShader: fragment,
@@ -81,6 +85,8 @@ export default class Sketch {
 
     this.mesh = new THREE.Mesh(this.geometry, this.material);
     this.scene.add(this.mesh);
+    this.mesh.position.x = 200;
+    this.mesh.rotation.z = 0.5;
   }
 
   render() {
