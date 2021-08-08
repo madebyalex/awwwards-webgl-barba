@@ -78,7 +78,7 @@ export default class Sketch {
         uProgress: { value: this.settings.progress },
         uTexture: { value: new THREE.TextureLoader().load(testTexture) },
         uTextureSize: { value: new THREE.Vector2(100, 100) },
-        uCorners: { value: new THREE.Vector2(0, 0) },
+        uCorners: { value: new THREE.Vector4(0, 0, 0, 0) },
         uResolution: { value: new THREE.Vector2(this.width, this.height) },
         uQuadSize: { value: new THREE.Vector2(250, 250) },
       },
@@ -96,7 +96,21 @@ export default class Sketch {
         {
           y: 1,
         },
-        0.3
+        0.2
+      )
+      .to(
+        this.material.uniforms.uCorners.value,
+        {
+          z: 1,
+        },
+        0.4
+      )
+      .to(
+        this.material.uniforms.uCorners.value,
+        {
+          w: 1,
+        },
+        0.6
       );
 
     this.mesh = new THREE.Mesh(this.geometry, this.material);
