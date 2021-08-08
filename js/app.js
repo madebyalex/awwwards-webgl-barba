@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import fragment from './shaders/fragment.glsl';
 import vertex from './shaders/vertex.glsl';
 import testTexture from 'url:../img/texture.jpg';
@@ -7,6 +7,8 @@ import * as dat from 'dat.gui';
 import { DoubleSide } from 'three';
 import gsap from 'gsap';
 import ASScroll from '@ashthornton/asscroll';
+
+const cameraDistance = 600;
 
 export default class Sketch {
   constructor(options) {
@@ -21,8 +23,6 @@ export default class Sketch {
       1000
     );
 
-    const cameraDistance = 600;
-
     this.camera.position.z = cameraDistance;
     this.camera.fov =
       Math.atan(this.height / 2 / cameraDistance) * (180 / Math.PI) * 2;
@@ -33,17 +33,21 @@ export default class Sketch {
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.container.appendChild(this.renderer.domElement);
 
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    // this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
-    this.asscroll = new ASScroll();
+    this.materials = [];
+
+    this.asscroll = new ASScroll({
+      disableRaf: true,
+    });
 
     this.asscroll.enable({
       horizontalScroll: true,
     });
     this.time = 0;
     this.setupSettings();
-    this.resize();
     this.addObjects();
+    this.resize();
     this.render();
     this.setupResize();
   }
@@ -63,6 +67,28 @@ export default class Sketch {
     this.renderer.setSize(this.width, this.height);
     this.camera.aspect = this.width / this.height;
     this.camera.updateProjectionMatrix();
+
+    // Update WebGL images which overlay HTML images
+    this.camera.fov =
+      Math.atan(this.height / 2 / cameraDistance) * (180 / Math.PI) * 2;
+    this.materials.forEach((m) => {
+      m.uniforms.uResolution.value.x = this.width;
+      m.uniforms.uResolution.value.y = this.height;
+    });
+
+    this.imageStore.forEach((item) => {
+      let bounds = item.img.getBoundingClientRect();
+      item.mesh.scale.set(bounds.width, bounds.height);
+      item.top = bounds.top;
+      item.left = bounds.left + this.asscroll.currentPos;
+      item.width = bounds.width;
+      item.height = bounds.height;
+
+      item.mesh.material.uniforms.uQuadSize.value.x = bounds.width;
+      item.mesh.material.uniforms.uQuadSize.value.y = bounds.height;
+      item.mesh.material.uniforms.uTextureSize.value.x = bounds.width;
+      item.mesh.material.uniforms.uTextureSize.value.y = bounds.height;
+    });
   }
 
   setupResize() {
@@ -126,7 +152,6 @@ export default class Sketch {
     // this.mesh.rotation.z = 0.5;
 
     this.images = [...document.querySelectorAll('.js-image')];
-    this.materials = [];
 
     this.imageStore = this.images.map((img) => {
       let bounds = img.getBoundingClientRect();
@@ -165,7 +190,9 @@ export default class Sketch {
   render() {
     this.time += 0.05;
     this.material.uniforms.time.value = this.time;
+    this.asscroll.update();
     this.setPosition();
+
     // this.material.uniforms.uProgress.value = this.settings.progress;
     this.tl.progress(this.settings.progress);
 
