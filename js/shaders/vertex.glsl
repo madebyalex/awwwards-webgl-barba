@@ -10,26 +10,32 @@ varying vec2 vSize;
 
 void main() {
   float PI = 3.1415926;
-  float sine = sin(PI * uProgress * 7.);
-  float waves = sine * 0.1 * sin(3. * length(uv) + uProgress * 3.);
+  float sine = sin(PI * uProgress);
+  float waves = sine * 0.1 * sin(5. * length(uv) + uProgress * 5.);
 
   vec4 defaultState = modelMatrix * vec4( position, 1.0 );
   vec4 fullScreenState = vec4( position, 1.0 );
-  fullScreenState.x *= uResolution.x / uQuadSize.x;
-  fullScreenState.y *= uResolution.y / uQuadSize.y;
+  fullScreenState.x *= uResolution.x;
+  fullScreenState.y *= uResolution.y;
 
   // 2 corners transition
   // float cornersProgress = mix(uCorners.x, uCorners.y, uv.x);
 
   // 4 corners transition
+  // float cornersProgress = mix(
+  //   mix(uCorners.z, uCorners.w, uv.x),
+  //   mix(uCorners.x, uCorners.y, uv.x),
+  //   uv.y
+  // );
+
   float cornersProgress = mix(
-    mix(uCorners.x, uCorners.y, uv.y),
+    mix(uCorners.y, uCorners.x, uv.y),
     mix(uCorners.w, uCorners.z, uv.y),
     uv.x
   );
 
-  // vec4 finalState = mix(defaultState, fullScreenState, cornersProgress);
-  vec4 finalState = mix(defaultState, fullScreenState, uProgress + waves);
+  vec4 finalState = mix(defaultState, fullScreenState, cornersProgress);
+  // vec4 finalState = mix(defaultState, fullScreenState, uProgress + waves);
 
   vSize = mix(uQuadSize, uResolution, uProgress);
 

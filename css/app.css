@@ -83,7 +83,7 @@ canvas {
 .item img {
   width: 30vw;
   height: 30vw;
-  opacity: 0.1;
+  opacity: 0;
 }
 /* single */
 .single {
