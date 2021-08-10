@@ -17,6 +17,7 @@ void main() {
   vec4 fullScreenState = vec4( position, 1.0 );
   fullScreenState.x *= uResolution.x;
   fullScreenState.y *= uResolution.y;
+  fullScreenState.z += uCorners.x;
 
   // 2 corners transition
   // float cornersProgress = mix(uCorners.x, uCorners.y, uv.x);
@@ -29,15 +30,15 @@ void main() {
   // );
 
   float cornersProgress = mix(
-    mix(uCorners.y, uCorners.x, uv.y),
-    mix(uCorners.w, uCorners.z, uv.y),
-    uv.x
+    mix(uCorners.y, uCorners.x, uv.x),
+    mix(uCorners.w, uCorners.z, uv.x),
+    uv.y
   );
 
   vec4 finalState = mix(defaultState, fullScreenState, cornersProgress);
   // vec4 finalState = mix(defaultState, fullScreenState, uProgress + waves);
 
-  vSize = mix(uQuadSize, uResolution, uProgress);
+  vSize = mix(uQuadSize, uResolution, cornersProgress);
 
   gl_Position = projectionMatrix * viewMatrix * finalState;
 

@@ -74,7 +74,7 @@ canvas {
   line-height: 1.2;
 }
 .item p {
-  font-weight: 400;
+  font-weight: 300;
   color: #ccc;
 }
 .item:last-child {
@@ -83,7 +83,7 @@ canvas {
 .item img {
   width: 30vw;
   height: 30vw;
-  opacity: 0;
+  opacity: 0.2;
 }
 /* single */
 .single {
