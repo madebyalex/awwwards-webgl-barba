@@ -83,7 +83,7 @@ canvas {
 .item img {
   width: 30vw;
   height: 30vw;
-  opacity: 0.2;
+  opacity: 0;
 }
 /* single */
 .single {
@@ -144,7 +144,7 @@ figure img {
   top: 0;
   left: 0;
   z-index: 100;
-  background: #2c2c31;
+  background: #187080;
   transform: translate(0, 100%);
 }
 

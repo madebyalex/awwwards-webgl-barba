@@ -17,9 +17,9 @@ export default class Sketch {
     this.height = this.container.offsetHeight;
 
     this.camera = new THREE.PerspectiveCamera(
-      70,
+      30,
       this.width / this.height,
-      0.01,
+      10,
       1000
     );
 
@@ -47,14 +47,16 @@ export default class Sketch {
     this.time = 0;
     // this.setupSettings();
     this.addObjects();
+    this.addClickEvents();
     this.resize();
     this.render();
-    this.setupResize();
 
     this.barba();
+    this.setupResize();
   }
 
   barba() {
+    this.animationRunning = false;
     // barba.init({});
 
     let that = this;
@@ -67,10 +69,11 @@ export default class Sketch {
             namespace: ['home'],
           },
           leave(data) {
+            that.animationRunning = true;
             that.asscroll.disable();
             return gsap
               .timeline()
-              .to(data.current.container, { duration: 1, opacity: 0 });
+              .to(data.current.container, { duration: 0.5, opacity: 0 });
             // console.log(data);
           },
           enter(data) {
@@ -87,7 +90,8 @@ export default class Sketch {
             return gsap.timeline().from(data.next.container, {
               opacity: 0,
               onComplete: () => {
-                that.container.style.display = 'none';
+                that.container.style.visibility = 'hidden';
+                that.animationRunning = false;
               },
             });
           },
@@ -118,22 +122,64 @@ export default class Sketch {
                 data.next.container.querySelector('.scroll-wrap'),
             });
 
+            // cleeaning old arrays
+            that.imageStore.forEach((m) => {
+              that.scene.remove(m.mesh);
+            });
+            that.imageStore = [];
+            that.materials = [];
             that.addObjects();
             that.resize();
+            that.addClickEvents();
+            that.container.style.visibility = 'visible';
 
             return gsap
               .timeline()
               .to('.curtain', { duration: 0.3, y: '-100%' })
               .from(data.next.container, {
                 opacity: 0,
-                // onComplete: () => {
-                //   that.container.style.display = 'block';
-                // },
               })
               .to('.curtain', { duration: 0, y: '100%' });
           },
         },
       ],
+    });
+  }
+
+  addClickEvents() {
+    this.imageStore.forEach((i) => {
+      i.img.addEventListener('click', () => {
+        let tl = gsap
+          .timeline()
+          .to(i.mesh.material.uniforms.uCorners.value, {
+            x: 1,
+            duration: 0.4,
+          })
+          .to(
+            i.mesh.material.uniforms.uCorners.value,
+            {
+              y: 1,
+              duration: 0.4,
+            },
+            0.1
+          )
+          .to(
+            i.mesh.material.uniforms.uCorners.value,
+            {
+              z: 1,
+              duration: 0.4,
+            },
+            0.2
+          )
+          .to(
+            i.mesh.material.uniforms.uCorners.value,
+            {
+              w: 1,
+              duration: 0.4,
+            },
+            0.3
+          );
+      });
     });
   }
 
@@ -187,8 +233,8 @@ export default class Sketch {
       // wireframe: true,
       uniforms: {
         time: { value: 1.0 },
-        // uProgress: { value: this.settings.progress },
-        uTexture: { value: new THREE.TextureLoader().load(testTexture) },
+        uProgress: { value: 0 },
+        uTexture: { value: null },
         uTextureSize: { value: new THREE.Vector2(100, 100) },
         uCorners: { value: new THREE.Vector4(0, 0, 0, 0) },
         uResolution: { value: new THREE.Vector2(this.width, this.height) },
@@ -201,7 +247,7 @@ export default class Sketch {
     this.mesh = new THREE.Mesh(this.geometry, this.material);
     this.mesh.scale.set(300, 300, 1);
     // this.scene.add(this.mesh);
-    // this.mesh.position.x = 300;
+    this.mesh.position.x = 300;
     // this.mesh.rotation.z = 0.5;
 
     this.images = [...document.querySelectorAll('.js-image')];
@@ -217,38 +263,38 @@ export default class Sketch {
 
       m.uniforms.uTexture.value = texture;
 
-      img.addEventListener('click', () => {
-        this.tl = gsap
-          .timeline()
-          .to(m.uniforms.uCorners.value, {
-            x: 1,
-            duration: 0.4,
-          })
-          .to(
-            m.uniforms.uCorners.value,
-            {
-              y: 1,
-              duration: 0.4,
-            },
-            0.1
-          )
-          .to(
-            m.uniforms.uCorners.value,
-            {
-              z: 1,
-              duration: 0.4,
-            },
-            0.2
-          )
-          .to(
-            m.uniforms.uCorners.value,
-            {
-              w: 1,
-              duration: 0.4,
-            },
-            0.3
-          );
-      });
+      // img.addEventListener('click', () => {
+      //   this.tl = gsap
+      //     .timeline()
+      //     .to(m.uniforms.uCorners.value, {
+      //       x: 1,
+      //       duration: 0.4,
+      //     })
+      //     .to(
+      //       m.uniforms.uCorners.value,
+      //       {
+      //         y: 1,
+      //         duration: 0.4,
+      //       },
+      //       0.1
+      //     )
+      //     .to(
+      //       m.uniforms.uCorners.value,
+      //       {
+      //         z: 1,
+      //         duration: 0.4,
+      //       },
+      //       0.2
+      //     )
+      //     .to(
+      //       m.uniforms.uCorners.value,
+      //       {
+      //         w: 1,
+      //         duration: 0.4,
+      //       },
+      //       0.3
+      //     );
+      // });
 
       // img.addEventListener('mouseout', () => {
       //   this.tl = gsap
@@ -299,11 +345,14 @@ export default class Sketch {
   }
 
   setPosition() {
-    this.imageStore.forEach((o) => {
-      o.mesh.position.x =
-        -this.asscroll.currentPos + o.left - this.width / 2 + o.width / 2;
-      o.mesh.position.y = -o.top + this.height / 2 - o.height / 2;
-    });
+    // console.log(this.asscroll.currentPos)
+    if (!this.animationRunning) {
+      this.imageStore.forEach((o) => {
+        o.mesh.position.x =
+          -this.asscroll.currentPos + o.left - this.width / 2 + o.width / 2;
+        o.mesh.position.y = -o.top + this.height / 2 - o.height / 2;
+      });
+    }
   }
 
   render() {
@@ -315,8 +364,8 @@ export default class Sketch {
     // this.material.uniforms.uProgress.value = this.settings.progress;
     // this.tl.progress(this.settings.progress);
 
-    this.mesh.rotation.x = this.time / 2000;
-    this.mesh.rotation.y = this.time / 1000;
+    // this.mesh.rotation.x = this.time / 2000;
+    // this.mesh.rotation.y = this.time / 1000;
 
     this.renderer.render(this.scene, this.camera);
 
