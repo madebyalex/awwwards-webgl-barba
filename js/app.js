@@ -42,7 +42,7 @@ export default class Sketch {
     });
 
     this.asscroll.enable({
-      horizontalScroll: true,
+      horizontalScroll: !document.body.classList.contains('b-inside'),
     });
     this.time = 0;
     // this.setupSettings();
@@ -55,9 +55,86 @@ export default class Sketch {
   }
 
   barba() {
-    barba.init({});
+    // barba.init({});
 
-    console.log('Barba started!');
+    let that = this;
+
+    barba.init({
+      transitions: [
+        {
+          name: 'from-home-transition',
+          from: {
+            namespace: ['home'],
+          },
+          leave(data) {
+            that.asscroll.disable();
+            return gsap
+              .timeline()
+              .to(data.current.container, { duration: 1, opacity: 0 });
+            // console.log(data);
+          },
+          enter(data) {
+            that.asscroll = new ASScroll({
+              disableRaf: true,
+              containerElement: data.next.container.querySelector(
+                '[asscroll-container]'
+              ),
+            });
+            that.asscroll.enable({
+              newScrollElements:
+                data.next.container.querySelector('.scroll-wrap'),
+            });
+            return gsap.timeline().from(data.next.container, {
+              opacity: 0,
+              onComplete: () => {
+                that.container.style.display = 'none';
+              },
+            });
+          },
+        },
+
+        {
+          name: 'from-inside-page-transition',
+          from: {
+            namespace: ['inside'],
+          },
+          leave(data) {
+            that.asscroll.disable();
+            return gsap
+              .timeline()
+              .to('.curtain', { duration: 0.3, y: 0 })
+              .to(data.current.container, { opacity: 0 });
+          },
+          enter(data) {
+            that.asscroll = new ASScroll({
+              disableRaf: true,
+              containerElement: data.next.container.querySelector(
+                '[asscroll-container]'
+              ),
+            });
+            that.asscroll.enable({
+              horizontalScroll: true,
+              newScrollElements:
+                data.next.container.querySelector('.scroll-wrap'),
+            });
+
+            that.addObjects();
+            that.resize();
+
+            return gsap
+              .timeline()
+              .to('.curtain', { duration: 0.3, y: '-100%' })
+              .from(data.next.container, {
+                opacity: 0,
+                // onComplete: () => {
+                //   that.container.style.display = 'block';
+                // },
+              })
+              .to('.curtain', { duration: 0, y: '100%' });
+          },
+        },
+      ],
+    });
   }
 
   setupSettings() {
@@ -140,7 +217,7 @@ export default class Sketch {
 
       m.uniforms.uTexture.value = texture;
 
-      img.addEventListener('mouseover', () => {
+      img.addEventListener('click', () => {
         this.tl = gsap
           .timeline()
           .to(m.uniforms.uCorners.value, {
@@ -173,38 +250,38 @@ export default class Sketch {
           );
       });
 
-      img.addEventListener('mouseout', () => {
-        this.tl = gsap
-          .timeline()
-          .to(m.uniforms.uCorners.value, {
-            x: 0,
-            duration: 0.4,
-          })
-          .to(
-            m.uniforms.uCorners.value,
-            {
-              y: 0,
-              duration: 0.4,
-            },
-            0.1
-          )
-          .to(
-            m.uniforms.uCorners.value,
-            {
-              z: 0,
-              duration: 0.4,
-            },
-            0.2
-          )
-          .to(
-            m.uniforms.uCorners.value,
-            {
-              w: 0,
-              duration: 0.4,
-            },
-            0.3
-          );
-      });
+      // img.addEventListener('mouseout', () => {
+      //   this.tl = gsap
+      //     .timeline()
+      //     .to(m.uniforms.uCorners.value, {
+      //       x: 0,
+      //       duration: 0.4,
+      //     })
+      //     .to(
+      //       m.uniforms.uCorners.value,
+      //       {
+      //         y: 0,
+      //         duration: 0.4,
+      //       },
+      //       0.1
+      //     )
+      //     .to(
+      //       m.uniforms.uCorners.value,
+      //       {
+      //         z: 0,
+      //         duration: 0.4,
+      //       },
+      //       0.2
+      //     )
+      //     .to(
+      //       m.uniforms.uCorners.value,
+      //       {
+      //         w: 0,
+      //         duration: 0.4,
+      //       },
+      //       0.3
+      //     );
+      // });
 
       let mesh = new THREE.Mesh(this.geometry, m);
       this.scene.add(mesh);
